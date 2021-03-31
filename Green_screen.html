@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=5, initial-scale=1.0">
+    <title>Document</title>
+
+
+    <style type="text/css">
+        canvas {
+            width: 200pt;
+            height: 100pt;
+            padding: 5pt;
+            margin: 10pt;
+            border: 5pt solid lightgray;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://www.dukelearntoprogram.com/course1/common/js/image/SimpleImage.js">
+    </script>
+    <h1> Green Screen</h1>
+    <canvas id="can1">
+    </canvas>
+    <canvas id="can2">
+    </canvas>
+    <p>
+        Foreground: <input type="file" multiple="false" accept="image/*" id="Finput" onchange="Loadforimage()">
+    <p>
+        Background: <input type="file" multiple="false" accept="image/*" id="Binput" onchange="Loadbackimage()">
+    <p>
+        <input type="button" value="create composite" onclick="doGreenScreen()">
+
+        <input type="button" value="clear canvas" onclick="clearCanvas()">
+
+
+</body>
+<script type="text/javascript">
+    var FgImage = null;
+    var BgImage = null;
+    // 这里不预设为null应该也没有影响吧？
+
+    var GreenT = 200;
+    var paintcanvas1 = document.getElementById("can1");
+    var context1 = paintcanvas1.getContext("2d");
+    var paintcanvas2 = document.getElementById("can2");
+    var context2 = paintcanvas2.getContext("2d");
+
+    function Loadforimage() {
+        // alert("load for image");这个alert是测试初期代码的好方法
+        var imageFile = document.getElementById("Finput");
+        FgImage = new SimpleImage(imageFile);
+        var canv = document.getElementById("can1");
+        FgImage.drawTo(canv);
+    }
+
+    function Loadbackimage() {
+        // alert("load back image");
+        var imageFile1 = document.getElementById("Binput");
+        BgImage = new SimpleImage(imageFile1);
+        var canv1 = document.getElementById("can2");
+        BgImage.drawTo(canv1);
+    }
+
+    function doGreenScreen() {
+        // alert("do green screen");
+        if (FgImage == null || !FgImage.complete()) {
+            alert("foreground image not loaded");
+            return;
+        }
+        if (BgImage == null || !BgImage.complete()) {
+            alert("Background image not loaded");
+            return;
+        }
+        var output = new SimpleImage(FgImage.getWidth(),
+            FgImage.getHeight());
+        for (var pixel of FgImage.values()) {
+            var x = pixel.getX();
+            var y = pixel.getY();
+            if (pixel.getGreen() > GreenT) {
+                var bgPixel = BgImage.getPixel(x, y);
+                output.setPixel(x, y, bgPixel);
+            }
+            else {
+                output.setPixel(x, y, pixel);
+            }
+            var can1 = document.getElementById("can1");
+            
+        }
+        output.drawTo(can1);
+        context2.clearRect(0, 0, paintcanvas2.width, paintcanvas2.height);
+    }
+
+    function clearCanvas() {
+        // alert("clear canvas");
+        context1.clearRect(0, 0, paintcanvas1.width, paintcanvas1.height);
+        context2.clearRect(0, 0, paintcanvas2.width, paintcanvas2.height);
+    }
+
+</script>
+
+</html>
